@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FlipList AI — Sports Card Reseller Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0f; color: #e8e8f0; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+.app { min-height: 100vh; background: #0a0a0f; background-image: radial-gradient(ellipse at 20% 10%, rgba(245,200,66,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 85%, rgba(0,229,160,0.05) 0%, transparent 50%); padding: 40px 20px 80px; }
+.header { text-align: center; margin-bottom: 28px; }
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 8vw, 72px); letter-spacing: 3px; line-height: 1; color: #fff; }
+.logo .gold { color: #f5c842; }
+.logo-badge { display: inline-block; background: #f5c842; color: #0a0a0f; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 2px 8px; border-radius: 4px; margin-left: 10px; vertical-align: super; }
+.beta-banner { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); border-radius: 100px; padding: 5px 16px; font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #00e5a0; margin-top: 10px; }
+.tagline { color: #555; font-size: 14px; margin-top: 8px; }
+.free-badge { display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(245,200,66,0.06); border: 1px solid rgba(245,200,66,0.15); border-radius: 8px; padding: 10px 16px; margin: 0 auto 20px; max-width: 560px; font-size: 12px; color: #888; }
+.free-badge strong { color: #f5c842; }
+.mode-toggle { display: flex; background: #13131a; border: 1px solid #1e1e2e; border-radius: 14px; padding: 5px; gap: 4px; max-width: 560px; margin: 0 auto 12px; }
+.mode-btn { flex: 1; padding: 11px 8px; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #444; transition: all 0.25s; }
+.mode-btn.sell { background: #f5c842; color: #0a0a0f; box-shadow: 0 4px 16px rgba(245,200,66,0.2); }
+.mode-btn.buy { background: #00e5a0; color: #0a0a0f; box-shadow: 0 4px 16px rgba(0,229,160,0.2); }
+.mode-btn.grade { background: #a78bfa; color: #0a0a0f; box-shadow: 0 4px 16px rgba(167,139,250,0.2); }
+.mode-desc { text-align: center; font-size: 12px; color: #444; margin-bottom: 20px; min-height: 18px; }
+.card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 18px; padding: 28px; max-width: 600px; margin: 0 auto; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; }
+.section-label-2 { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin: 20px 0 14px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; }
+input, select { background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 8px; color: #e8e8f0; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%; -webkit-appearance: none; }
+input:focus, select:focus { border-color: #f5c842; }
+input::placeholder { color: #252535; }
+select option { background: #13131a; }
+.divider { height: 1px; background: #1e1e2e; margin: 20px 0; }
+.intent-row { display: flex; gap: 8px; margin-top: 4px; }
+.intent-btn { flex: 1; padding: 10px 6px; background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 8px; color: #444; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+.intent-btn.active-buy { border-color: #00e5a0; color: #00e5a0; background: rgba(0,229,160,0.06); }
+.price-wrap { position: relative; }
+.price-dollar { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #444; font-size: 14px; pointer-events: none; }
+.price-wrap input { padding-left: 26px; }
+.action-btn { width: 100%; margin-top: 20px; padding: 14px; border: none; border-radius: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+.action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.sell-btn { background: #f5c842; color: #0a0a0f; }
+.buy-btn-action { background: #00e5a0; color: #0a0a0f; }
+.grade-btn-action { background: #a78bfa; color: #0a0a0f; }
+.loader { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 44px 0; }
+.spinner { width: 44px; height: 44px; border: 3px solid #1e1e30; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.spinner.sell { border-top-color: #f5c842; }
+.spinner.buy { border-top-color: #00e5a0; }
+.spinner.grade { border-top-color: #a78bfa; }
+.loader-text { font-size: 12px; color: #555; letter-spacing: 1px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.confidence-bar { background: #0a0a0f; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.conf-bars { display: flex; gap: 3px; flex-shrink: 0; }
+.conf-bar { width: 8px; height: 20px; border-radius: 3px; }
+.conf-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.conf-detail { font-size: 11px; color: #555; margin-top: 2px; }
+.conf-note { margin-left: auto; font-size: 10px; color: #333; font-style: italic; }
+.price-hero { background: #0a0a0f; border: 1px solid #2a2a3e; border-radius: 14px; padding: 20px 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.price-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; }
+.price-value { font-family: 'Bebas Neue', sans-serif; font-size: 50px; color: #00e5a0; letter-spacing: 2px; line-height: 1; }
+.price-reason { font-size: 12px; color: #555; margin-top: 6px; max-width: 280px; }
+.flip-box { text-align: center; background: #13131a; border-radius: 12px; padding: 14px 22px; }
+.flip-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; }
+.flip-reason { font-size: 11px; color: #444; margin-top: 5px; max-width: 120px; line-height: 1.4; }
+.result-box { background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+.result-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #f5c842; margin-bottom: 8px; }
+.result-label-green { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #00e5a0; margin-bottom: 8px; }
+.result-label-purple { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #a78bfa; margin-bottom: 8px; }
+.result-text { font-size: 13px; color: #c8c8d8; line-height: 1.6; }
+.copy-btn { margin-top: 10px; background: #1a1a28; border: 1px solid #2a2a3e; border-radius: 6px; color: #666; font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; transition: all 0.2s; }
+.copy-btn:hover { border-color: #f5c842; color: #f5c842; }
+.copy-btn.copied { border-color: #00e5a0; color: #00e5a0; }
+.signal-bar { margin-bottom: 12px; }
+.signal-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.signal-name { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; }
+.signal-score { font-size: 11px; font-weight: 700; }
+.signal-track { height: 3px; background: #1a1a2e; border-radius: 2px; overflow: hidden; }
+.signal-fill { height: 100%; border-radius: 2px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.profit-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #13131f; font-size: 12px; }
+.profit-row:last-child { border-bottom: none; }
+.profit-label { color: #555; }
+.profit-val { font-weight: 600; }
+.verdict-hero { background: #0a0a0f; border: 1px solid #2a2a3e; border-radius: 14px; padding: 22px 24px; margin-bottom: 12px; text-align: center; }
+.verdict-badge { display: inline-flex; align-items: center; gap: 10px; border-radius: 100px; padding: 8px 22px; margin-bottom: 16px; }
+.verdict-text { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; }
+.price-compare { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.price-compare-item { text-align: center; }
+.pc-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #555; }
+.pc-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; }
+.pc-sep { font-size: 18px; color: #333; }
+.verdict-summary { font-size: 13px; color: #666; line-height: 1.7; max-width: 420px; margin: 0 auto; }
+.negotiate-box { background: rgba(245,200,66,0.06); border: 1px solid rgba(245,200,66,0.2); border-radius: 10px; padding: 12px 18px; margin-top: 14px; font-size: 13px; color: #888; }
+.negotiate-price { color: #f5c842; font-size: 16px; font-weight: 700; }
+.strategy-box { background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+.strategy-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #00e5a0; margin-bottom: 8px; }
+.strategy-text { font-size: 13px; color: #666; line-height: 1.7; }
+.reset-btn { display: block; width: 100%; margin-top: 16px; background: transparent; border: 1px solid #1e1e2e; border-radius: 8px; color: #444; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 11px; cursor: pointer; transition: all 0.2s; }
+.reset-btn:hover { color: #888; border-color: #2a2a3e; }
+
+/* GRADE MODE SPECIFIC */
+.condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 4px; }
+.condition-scale { display: flex; gap: 6px; margin-top: 4px; }
+.scale-btn { flex: 1; padding: 8px 4px; background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 6px; color: #444; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+.scale-btn.active-grade { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.06); }
+.grade-result-hero { background: #0a0a0f; border: 1px solid #2a2a3e; border-radius: 14px; padding: 24px; margin-bottom: 12px; text-align: center; }
+.grade-verdict-badge { display: inline-flex; align-items: center; gap: 10px; border-radius: 100px; padding: 8px 22px; margin-bottom: 16px; }
+.predicted-grade { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: #a78bfa; margin-bottom: 4px; }
+.grade-score-box { display: inline-block; background: #13131a; border-radius: 12px; padding: 14px 28px; margin: 16px auto; }
+.grade-score-num { font-family: 'Bebas Neue', sans-serif; font-size: 44px; line-height: 1; }
+.profit-table { width: 100%; }
+.profit-scenario { background: #0a0a0f; border: 1px solid #1e1e2e; border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+.scenario-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+.watermark { text-align: center; margin-top: 48px; font-size: 11px; color: #1e1e2e; letter-spacing: 1px; text-transform: uppercase; }
+.hidden { display: none; }
+@media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } .form-group.full { grid-column: 1; } .two-col { grid-template-columns: 1fr; } .condition-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">Flip<span class="gold">List</span><span class="logo-badge">AI</span></div>
+    <div><span class="beta-banner">✦ Free Demo — No Signup Required · 14-Day Free Trial on All Paid Plans</span></div>
+    <div class="tagline">Your AI-powered sports card assistant</div>
+  </div>
+
+  <div class="free-badge">
+    🎴 <strong>100% Free to try right now</strong> — No account needed. Paid plans include a 14-day free trial. No credit card required.
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn sell" id="sellBtn" onclick="setMode('sell')">🏷️ Sell Mode</button>
+    <button class="mode-btn" id="buyBtn" onclick="setMode('buy')">🛒 Buy Mode</button>
+    <button class="mode-btn" id="gradeBtn" onclick="setMode('grade')">💎 Grade Mode</button>
+  </div>
+  <div class="mode-desc" id="modeDesc">Get a suggested price, eBay listing, and Flip Score</div>
+
+  <div class="card">
+    <div class="section-label" id="sectionLabel" style="color:#f5c842;">Card Details</div>
+
+    <!-- ── SELL FORM ── -->
+    <div id="sellForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Sport</label><select id="s-sport"><option>Baseball</option><option>Basketball</option><option>Football</option><option>Hockey</option><option>Soccer</option><option>Pokemon</option></select></div>
+        <div class="form-group"><label>Year</label><input id="s-year" placeholder="e.g. 2020"/></div>
+        <div class="form-group full"><label>Player / Subject *</label><input id="s-player" placeholder="e.g. Fernando Tatis Jr."/></div>
+        <div class="form-group full"><label>Set / Brand *</label><input id="s-set" placeholder="e.g. Topps Chrome"/></div>
+        <div class="form-group"><label>Parallel</label><input id="s-parallel" placeholder="e.g. Refractor /99"/></div>
+        <div class="form-group"><label>Grade</label><select id="s-grade"><option>Raw/Ungraded</option><option>PSA 10</option><option>PSA 9</option><option>PSA 8</option><option>PSA 7</option><option>BGS 10 Black</option><option>BGS 9.5</option><option>BGS 9</option><option>SGC 10</option><option>SGC 9.5</option></select></div>
+      </div>
+      <button class="action-btn sell-btn" id="sellSubmit" onclick="analyzeSell()" disabled>Analyze & Generate Listing →</button>
+    </div>
+
+    <!-- ── BUY FORM ── -->
+    <div id="buyForm" class="hidden">
+      <div class="form-grid">
+        <div class="form-group"><label>Sport</label><select id="b-sport"><option>Baseball</option><option>Basketball</option><option>Football</option><option>Hockey</option><option>Soccer</option><option>Pokemon</option></select></div>
+        <div class="form-group"><label>Year</label><input id="b-year" placeholder="e.g. 2020"/></div>
+        <div class="form-group full"><label>Player / Subject *</label><input id="b-player" placeholder="e.g. Fernando Tatis Jr."/></div>
+        <div class="form-group full"><label>Set / Brand *</label><input id="b-set" placeholder="e.g. Topps Chrome"/></div>
+        <div class="form-group"><label>Parallel</label><input id="b-parallel" placeholder="e.g. Refractor /99"/></div>
+        <div class="form-group"><label>Grade</label><select id="b-grade"><option>Raw/Ungraded</option><option>PSA 10</option><option>PSA 9</option><option>PSA 8</option><option>PSA 7</option><option>BGS 10 Black</option><option>BGS 9.5</option><option>BGS 9</option><option>SGC 10</option><option>SGC 9.5</option></select></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00e5a0;margin-bottom:14px;">Deal Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Asking Price *</label><div class="price-wrap"><span class="price-dollar">$</span><input id="b-price" type="number" placeholder="0.00"/></div></div>
+        <div class="form-group"><label>Where Buying?</label><select id="b-where"><option>Card Show</option><option>Facebook Marketplace</option><option>eBay Auction</option><option>eBay Buy It Now</option><option>Local Shop</option><option>COMC</option><option>Other</option></select></div>
+      </div>
+      <div class="form-group" style="margin-top:13px;">
+        <label>Your Intent</label>
+        <div class="intent-row">
+          <button class="intent-btn active-buy" id="intent-flip" onclick="setIntent('flip')">🔄 Quick Flip</button>
+          <button class="intent-btn" id="intent-hold" onclick="setIntent('hold')">📦 Hold / PC</button>
+          <button class="intent-btn" id="intent-grade-buy" onclick="setIntent('grade')">💎 Grade & Flip</button>
+        </div>
+      </div>
+      <button class="action-btn buy-btn-action" id="buySubmit" onclick="analyzeBuy()" disabled>Analyze This Deal →</button>
+    </div>
+
+    <!-- ── GRADE FORM ── -->
+    <div id="gradeForm" class="hidden">
+      <div class="form-grid">
+        <div class="form-group"><label>Sport</label><select id="g-sport"><option>Baseball</option><option>Basketball</option><option>Football</option><option>Hockey</option><option>Soccer</option><option>Pokemon</option></select></div>
+        <div class="form-group"><label>Year</label><input id="g-year" placeholder="e.g. 2020"/></div>
+        <div class="form-group full"><label>Player / Subject *</label><input id="g-player" placeholder="e.g. Fernando Tatis Jr."/></div>
+        <div class="form-group full"><label>Set / Brand *</label><input id="g-set" placeholder="e.g. Topps Chrome"/></div>
+        <div class="form-group full"><label>Parallel</label><input id="g-parallel" placeholder="e.g. Refractor /99"/></div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:14px;">Condition Assessment</div>
+      <div class="condition-grid">
+        <div class="form-group">
+          <label>Centering</label>
+          <div class="condition-scale">
+            <button class="scale-btn" id="cen-1" onclick="setCondition('centering',1)">Poor</button>
+            <button class="scale-btn" id="cen-2" onclick="setCondition('centering',2)">Fair</button>
+            <button class="scale-btn active-grade" id="cen-3" onclick="setCondition('centering',3)">Good</button>
+            <button class="scale-btn" id="cen-4" onclick="setCondition('centering',4)">Gem</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Corners</label>
+          <div class="condition-scale">
+            <button class="scale-btn" id="cor-1" onclick="setCondition('corners',1)">Poor</button>
+            <button class="scale-btn" id="cor-2" onclick="setCondition('corners',2)">Fair</button>
+            <button class="scale-btn active-grade" id="cor-3" onclick="setCondition('corners',3)">Good</button>
+            <button class="scale-btn" id="cor-4" onclick="setCondition('corners',4)">Gem</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Edges</label>
+          <div class="condition-scale">
+            <button class="scale-btn" id="edg-1" onclick="setCondition('edges',1)">Poor</button>
+            <button class="scale-btn" id="edg-2" onclick="setCondition('edges',2)">Fair</button>
+            <button class="scale-btn active-grade" id="edg-3" onclick="setCondition('edges',3)">Good</button>
+            <button class="scale-btn" id="edg-4" onclick="setCondition('edges',4)">Gem</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Surface</label>
+          <div class="condition-scale">
+            <button class="scale-btn" id="sur-1" onclick="setCondition('surface',1)">Poor</button>
+            <button class="scale-btn" id="sur-2" onclick="setCondition('surface',2)">Fair</button>
+            <button class="scale-btn active-grade" id="sur-3" onclick="setCondition('surface',3)">Good</button>
+            <button class="scale-btn" id="sur-4" onclick="setCondition('surface',4)">Gem</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:14px;">Grading Details</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Grading Service</label><select id="g-service"><option>PSA</option><option>BGS</option><option>SGC</option></select></div>
+        <div class="form-group"><label>Submission Tier</label><select id="g-tier"><option value="25">Economy — $25</option><option value="50">Regular — $50</option><option value="150">Express — $150</option></select></div>
+        <div class="form-group full"><label>Current Raw Asking Price *</label><div class="price-wrap"><span class="price-dollar">$</span><input id="g-raw-price" type="number" placeholder="e.g. 45.00"/></div></div>
+      </div>
+      <button class="action-btn grade-btn-action" id="gradeSubmit" onclick="analyzeGrade()" disabled>Calculate Grade Score →</button>
+    </div>
+
+    <!-- LOADERS -->
+    <div id="sellLoader" class="hidden loader"><div class="spinner sell"></div><div class="loader-text">Analyzing card...</div></div>
+    <div id="buyLoader" class="hidden loader"><div class="spinner buy"></div><div class="loader-text">Analyzing deal...</div></div>
+    <div id="gradeLoader" class="hidden loader"><div class="spinner grade"></div><div class="loader-text">Calculating Grade Score...</div></div>
+
+    <!-- RESULTS -->
+    <div id="sellResult" class="hidden"></div>
+    <div id="buyResult" class="hidden"></div>
+    <div id="gradeResult" class="hidden"></div>
+  </div>
+
+  <div class="watermark">FlipList AI · Built for serious resellers · fliplist.ai</div>
+</div>
+
+<script>
+let currentMode = 'sell';
+let currentIntent = 'flip';
+let conditions = { centering: 3, corners: 3, edges: 3, surface: 3 };
+
+function setMode(mode) {
+  currentMode = mode;
+  const descs = { sell: 'Get a suggested price, eBay listing, and Flip Score', buy: 'Enter a card + asking price — get an instant Buy, Pass, or Negotiate signal', grade: 'Find out if grading your raw card is worth it — with full profit breakdown' };
+  const colors = { sell: '#f5c842', buy: '#00e5a0', grade: '#a78bfa' };
+  document.getElementById('sellBtn').className = 'mode-btn' + (mode === 'sell' ? ' sell' : '');
+  document.getElementById('buyBtn').className = 'mode-btn' + (mode === 'buy' ? ' buy' : '');
+  document.getElementById('gradeBtn').className = 'mode-btn' + (mode === 'grade' ? ' grade' : '');
+  document.getElementById('modeDesc').textContent = descs[mode];
+  document.getElementById('sectionLabel').style.color = colors[mode];
+  ['sell','buy','grade'].forEach(m => {
+    document.getElementById(m+'Form').className = m === mode ? '' : 'hidden';
+    document.getElementById(m+'Result').className = 'hidden';
+    document.getElementById(m+'Loader').className = 'hidden loader';
+  });
+}
+
+function setIntent(intent) {
+  currentIntent = intent;
+  ['flip','hold','grade-buy'].forEach(i => {
+    const el = document.getElementById('intent-'+i);
+    if (el) el.className = 'intent-btn' + (i.replace('-buy','') === intent ? ' active-buy' : '');
+  });
+}
+
+function setCondition(type, val) {
+  conditions[type] = val;
+  const prefixes = { centering: 'cen', corners: 'cor', edges: 'edg', surface: 'sur' };
+  const pre = prefixes[type];
+  [1,2,3,4].forEach(i => {
+    document.getElementById(pre+'-'+i).className = 'scale-btn' + (i === val ? ' active-grade' : '');
+  });
+  checkGradeValid();
+}
+
+function checkGradeValid() {
+  const valid = document.getElementById('g-player').value.trim() && document.getElementById('g-year').value.trim() && document.getElementById('g-set').value.trim() && document.getElementById('g-raw-price').value;
+  document.getElementById('gradeSubmit').disabled = !valid;
+}
+
+['s-player','s-year','s-set'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    document.getElementById('sellSubmit').disabled = !(document.getElementById('s-player').value.trim() && document.getElementById('s-year').value.trim() && document.getElementById('s-set').value.trim());
+  });
+});
+['b-player','b-year','b-set','b-price'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    document.getElementById('buySubmit').disabled = !(document.getElementById('b-player').value.trim() && document.getElementById('b-year').value.trim() && document.getElementById('b-set').value.trim() && document.getElementById('b-price').value);
+  });
+});
+['g-player','g-year','g-set','g-raw-price'].forEach(id => {
+  document.getElementById(id).addEventListener('input', checkGradeValid);
+});
+
+function getConfidence(grade, parallel) {
+  if (grade === 'PSA 10' || grade === 'PSA 9' || grade === 'BGS 9.5') return 'high';
+  if (parallel && (parallel.toLowerCase().includes('/1') || parallel.toLowerCase().includes('/5'))) return 'low';
+  return 'medium';
+}
+
+function confidenceHTML(level, accentColor) {
+  const cfg = {
+    high: { color: '#00e5a0', label: 'High Confidence', detail: 'Strong comp data available', bars: 3 },
+    medium: { color: '#f5c842', label: 'Medium Confidence', detail: 'Limited recent comps — verify manually', bars: 2 },
+    low: { color: '#ff6b6b', label: 'Low Confidence', detail: 'Few comps found — treat estimate with caution', bars: 1 },
+  };
+  const c = cfg[level];
+  const col = accentColor || c.color;
+  const barsHTML = [1,2,3].map(i => `<div class="conf-bar" style="background:${i <= c.bars ? col : '#1e1e2e'};"></div>`).join('');
+  return `<div class="confidence-bar" style="border:1px solid ${col}30;">
+    <div class="conf-bars">${barsHTML}</div>
+    <div><div class="conf-label" style="color:${col};">${c.label}</div><div class="conf-detail">${c.detail}</div></div>
+    <div class="conf-note">AI-estimated · Live data coming soon</div>
+  </div>`;
+}
+
+function signalBarHTML(label, score, color) {
+  return `<div class="signal-bar">
+    <div class="signal-row"><span class="signal-name">${label}</span><span class="signal-score" style="color:${color};">${score}/10</span></div>
+    <div class="signal-track"><div class="signal-fill" style="width:${score*10}%;background:${color};"></div></div>
+  </div>`;
+}
+
+function copyText(text, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    btn.textContent = '✓ Copied!'; btn.className = 'copy-btn copied';
+    setTimeout(() => { btn.textContent = '⎘ Copy'; btn.className = 'copy-btn'; }, 2000);
+  });
+}
+
+// ── SELL ANALYZE ──
+function analyzeSell() {
+  const player = document.getElementById('s-player').value;
+  const year = document.getElementById('s-year').value;
+  const set = document.getElementById('s-set').value;
+  const parallel = document.getElementById('s-parallel').value || 'Base';
+  const grade = document.getElementById('s-grade').value;
+  const sport = document.getElementById('s-sport').value;
+  document.getElementById('sellForm').className = 'hidden';
+  document.getElementById('sellLoader').className = 'loader';
+  setTimeout(() => {
+    const prices = { 'PSA 10': 120, 'PSA 9': 65, 'PSA 8': 35, 'BGS 9.5': 95, 'BGS 10 Black': 200, 'Raw/Ungraded': 18, 'SGC 10': 110, 'SGC 9.5': 80, 'BGS 9': 45, 'PSA 7': 20 };
+    const base = prices[grade] || 25;
+    const price = (base + Math.floor(Math.random() * 20)).toFixed(2);
+    const scoreNum = Math.floor(6 + Math.random() * 4);
+    const scoreColor = scoreNum >= 8 ? '#00e5a0' : scoreNum >= 6 ? '#f5c842' : '#ff6b6b';
+    const flipReason = scoreNum >= 8 ? 'Strong flip potential — market is hot' : scoreNum >= 6 ? 'Solid candidate with steady demand' : 'Moderate demand — price carefully';
+    const demandScore = Math.floor(5 + Math.random() * 4);
+    const trendScore = Math.floor(4 + Math.random() * 5);
+    const confidence = getConfidence(grade, document.getElementById('s-parallel').value);
+    const ebayTitle = `${year} ${set} ${player} ${parallel} ${grade}`.substring(0, 80);
+    const ebayDesc = `Up for sale is a ${year} ${set} ${player} (${parallel}) graded ${grade}. Beautiful card in excellent condition — a great addition to any ${sport} collection. Ships fast with tracking!`;
+    const reasoning = `Recent comps for ${grade} copies range $${(price*0.8).toFixed(0)}–$${(price*1.3).toFixed(0)}. ${grade.includes('10') ? 'Gem mint copies carry a strong premium.' : 'Demand is steady for this grade.'}`;
+    document.getElementById('sellLoader').className = 'hidden loader';
+    document.getElementById('sellResult').className = '';
+    document.getElementById('sellResult').innerHTML = `
+      ${confidenceHTML(confidence, '#f5c842')}
+      <div class="price-hero">
+        <div>
+          <div class="price-label">Suggested Price</div>
+          <div class="price-value">$${price}</div>
+          <div class="price-reason">${reasoning}</div>
+        </div>
+        <div class="flip-box">
+          <div class="price-label">Flip Score</div>
+          <div class="flip-num" style="color:${scoreColor};">${scoreNum}<span style="font-size:18px;color:#333;">/10</span></div>
+          <div class="flip-reason">${flipReason}</div>
+        </div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">Market Signals</div>
+        ${signalBarHTML('Buyer Demand', demandScore, '#00e5a0')}
+        ${signalBarHTML('Price Trend', trendScore, '#f5c842')}
+      </div>
+      <div class="result-box">
+        <div class="result-label">eBay Title</div>
+        <div class="result-text">${ebayTitle}</div>
+        <button class="copy-btn" id="copyTitle" onclick="copyText('${ebayTitle.replace(/'/g,"\\'")}','copyTitle')">⎘ Copy Title</button>
+      </div>
+      <div class="result-box">
+        <div class="result-label">eBay Description</div>
+        <div class="result-text">${ebayDesc}</div>
+        <button class="copy-btn" id="copyDesc" onclick="copyText(\`${ebayDesc}\`,'copyDesc')">⎘ Copy Description</button>
+      </div>
+      <button class="reset-btn" onclick="resetSell()">← Analyze Another Card</button>`;
+  }, 1800);
+}
+
+function resetSell() {
+  document.getElementById('sellResult').className = 'hidden';
+  document.getElementById('sellForm').className = '';
+  document.getElementById('sellSubmit').disabled = true;
+  ['s-player','s-year','s-set','s-parallel'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ── BUY ANALYZE ──
+function analyzeBuy() {
+  const player = document.getElementById('b-player').value;
+  const year = document.getElementById('b-year').value;
+  const set = document.getElementById('b-set').value;
+  const parallel = document.getElementById('b-parallel').value || 'Base';
+  const grade = document.getElementById('b-grade').value;
+  const asking = parseFloat(document.getElementById('b-price').value);
+  const where = document.getElementById('b-where').value;
+  document.getElementById('buyForm').className = 'hidden';
+  document.getElementById('buyLoader').className = 'loader';
+  setTimeout(() => {
+    const prices = { 'PSA 10': 180, 'PSA 9': 72, 'PSA 8': 38, 'BGS 9.5': 105, 'BGS 10 Black': 220, 'Raw/Ungraded': 22, 'SGC 10': 115, 'SGC 9.5': 85, 'BGS 9': 48, 'PSA 7': 24 };
+    const market = prices[grade] || 50;
+    const discount = ((market - asking) / market) * 100;
+    const rawProfit = market - asking;
+    const fees = (market * 0.129 + 0.30).toFixed(2);
+    const net = (rawProfit - market * 0.129 - 0.30 - 3.50).toFixed(2);
+    const roi = ((net / asking) * 100).toFixed(1);
+    const confidence = getConfidence(grade, document.getElementById('b-parallel').value);
+    let verdict, summary, negotiateTarget = null;
+    if (discount >= 15) { verdict = 'BUY'; summary = `You're buying ${discount.toFixed(0)}% below market. Net profit of $${net} after all fees. Pull the trigger.`; }
+    else if (discount >= 0) { verdict = 'NEGOTIATE'; negotiateTarget = (market * 0.82).toFixed(2); summary = `Close but margin is thin. Counter at $${negotiateTarget} to lock in a healthy flip.`; }
+    else { verdict = 'PASS'; summary = `Asking ${Math.abs(discount).toFixed(0)}% above market. You'd start in the red. Walk away.`; }
+    const vCfg = { BUY: { bg: 'rgba(0,229,160,0.1)', border: 'rgba(0,229,160,0.3)', color: '#00e5a0', icon: '✓', label: 'BUY IT' }, PASS: { bg: 'rgba(255,107,107,0.1)', border: 'rgba(255,107,107,0.3)', color: '#ff6b6b', icon: '✕', label: 'PASS' }, NEGOTIATE: { bg: 'rgba(245,200,66,0.1)', border: 'rgba(245,200,66,0.3)', color: '#f5c842', icon: '↔', label: 'NEGOTIATE' } };
+    const vc = vCfg[verdict];
+    const demandScore = Math.floor(5 + Math.random() * 4);
+    const trendScore = Math.floor(4 + Math.random() * 5);
+    const flipScore = Math.floor(5 + Math.random() * 4);
+    const scarcityScore = Math.floor(4 + Math.random() * 5);
+    const strategyText = currentIntent === 'flip' ? `List on eBay from ${where} with a 7-day auction starting at $${(market * 0.85).toFixed(0)}. Include "ships same day" to attract premium buyers.` : currentIntent === 'hold' ? `Set a price alert at $${(market * 1.3).toFixed(0)} in case you decide to sell later.` : `Check the grade premium before submitting. Only makes sense if the bump adds $40–$60+ in value.`;
+    const strategyLabel = currentIntent === 'flip' ? '🔄 Flip Strategy' : currentIntent === 'hold' ? '📦 Hold Strategy' : '💎 Grade & Flip Strategy';
+    document.getElementById('buyLoader').className = 'hidden loader';
+    document.getElementById('buyResult').className = '';
+    document.getElementById('buyResult').innerHTML = `
+      ${confidenceHTML(confidence, '#00e5a0')}
+      <div class="verdict-hero">
+        <div style="font-size:12px;color:#444;margin-bottom:10px;">${year} ${set} ${player} · ${parallel} · ${grade}</div>
+        <div class="verdict-badge" style="background:${vc.bg};border:1px solid ${vc.border};">
+          <span style="font-size:18px;color:${vc.color};font-weight:700;">${vc.icon}</span>
+          <span class="verdict-text" style="color:${vc.color};">${vc.label}</span>
+        </div>
+        <div class="price-compare">
+          <div class="price-compare-item"><div class="pc-label">Paying</div><div class="pc-val" style="color:#e0e0ee;">$${asking.toFixed(2)}</div></div>
+          <div class="pc-sep">vs</div>
+          <div class="price-compare-item"><div class="pc-label">Market</div><div class="pc-val" style="color:#00e5a0;">$${market.toFixed(2)}</div></div>
+          <div class="pc-sep">→</div>
+          <div class="price-compare-item"><div class="pc-label">Raw Margin</div><div class="pc-val" style="color:${rawProfit >= 0 ? '#00e5a0' : '#ff6b6b'};">${rawProfit >= 0 ? '+' : ''}$${rawProfit.toFixed(2)}</div></div>
+        </div>
+        <div class="verdict-summary">${summary}</div>
+        ${negotiateTarget ? `<div class="negotiate-box">Counter at <span class="negotiate-price">$${negotiateTarget}</span> to hit your target margin.</div>` : ''}
+      </div>
+      <div class="two-col">
+        <div class="result-box">
+          <div class="result-label-green">Market Signals</div>
+          ${signalBarHTML('Buyer Demand', demandScore, '#00e5a0')}
+          ${signalBarHTML('Price Trend', trendScore, '#f5c842')}
+          ${signalBarHTML('Flip Potential', flipScore, '#00e5a0')}
+          ${signalBarHTML('Scarcity', scarcityScore, '#a78bfa')}
+        </div>
+        <div class="result-box">
+          <div class="result-label-green">Profit Breakdown</div>
+          <div class="profit-row"><span class="profit-label">Market value</span><span class="profit-val" style="color:#e0e0ee;">$${market.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">Your cost</span><span class="profit-val" style="color:#ff6b6b;">-$${asking.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">eBay fees</span><span class="profit-val" style="color:#ff6b6b;">-$${fees}</span></div>
+          <div class="profit-row"><span class="profit-label">Shipping</span><span class="profit-val" style="color:#ff6b6b;">-$3.50</span></div>
+          <div class="profit-row" style="border-bottom:none;padding-top:10px;"><span style="font-size:13px;font-weight:700;color:#e0e0ee;">Net profit</span><span style="font-size:15px;font-weight:700;color:${parseFloat(net) >= 0 ? '#00e5a0' : '#ff6b6b'};">${parseFloat(net) >= 0 ? '+' : ''}$${net}</span></div>
+          <div style="text-align:right;margin-top:4px;font-size:11px;color:#444;">ROI: <span style="font-weight:700;color:${parseFloat(roi) >= 0 ? '#00e5a0' : '#ff6b6b'};">${roi}%</span></div>
+        </div>
+      </div>
+      <div class="strategy-box"><div class="strategy-label">${strategyLabel}</div><div class="strategy-text">${strategyText}</div></div>
+      <button class="reset-btn" onclick="resetBuy()">← Analyze Another Card</button>`;
+  }, 2000);
+}
+
+function resetBuy() {
+  document.getElementById('buyResult').className = 'hidden';
+  document.getElementById('buyForm').className = '';
+  document.getElementById('buySubmit').disabled = true;
+  ['b-player','b-year','b-set','b-parallel','b-price'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ── GRADE ANALYZE ──
+function analyzeGrade() {
+  const player = document.getElementById('g-player').value;
+  const year = document.getElementById('g-year').value;
+  const set = document.getElementById('g-set').value;
+  const parallel = document.getElementById('g-parallel').value || 'Base';
+  const sport = document.getElementById('g-sport').value;
+  const service = document.getElementById('g-service').value;
+  const tier = parseFloat(document.getElementById('g-tier').value);
+  const rawPrice = parseFloat(document.getElementById('g-raw-price').value);
+
+  document.getElementById('gradeForm').className = 'hidden';
+  document.getElementById('gradeLoader').className = 'loader';
+
+  setTimeout(() => {
+    const condAvg = (conditions.centering + conditions.corners + conditions.edges + conditions.surface) / 4;
+
+    let predictedGrade, psa9Value, psa10Value;
+    if (condAvg >= 3.75) { predictedGrade = `${service} 10 (possible) / ${service} 9 (likely)`; psa9Value = rawPrice * 3.2; psa10Value = rawPrice * 7.5; }
+    else if (condAvg >= 3.0) { predictedGrade = `${service} 9 (likely) / ${service} 8 (possible)`; psa9Value = rawPrice * 3.2; psa10Value = rawPrice * 7.5; }
+    else if (condAvg >= 2.0) { predictedGrade = `${service} 8 (likely) / ${service} 7 (possible)`; psa9Value = rawPrice * 2.1; psa10Value = rawPrice * 5; }
+    else { predictedGrade = `${service} 7 or below (likely)`; psa9Value = rawPrice * 1.5; psa10Value = rawPrice * 3.5; }
+
+    const ebayFees9 = psa9Value * 0.129 + 0.30;
+    const ebayFees10 = psa10Value * 0.129 + 0.30;
+    const shipping = 3.50;
+    const net9 = psa9Value - rawPrice - tier - ebayFees9 - shipping;
+    const net10 = psa10Value - rawPrice - tier - ebayFees10 - shipping;
+    const roi9 = ((net9 / (rawPrice + tier)) * 100).toFixed(1);
+    const roi10 = ((net10 / (rawPrice + tier)) * 100).toFixed(1);
+
+    let gradeScore, verdict, verdictColor, verdictIcon, verdictLabel, verdictSummary;
+    const profitScore = net9 > 30 ? 4 : net9 > 10 ? 3 : net9 > 0 ? 2 : 1;
+    const condScore = condAvg >= 3.5 ? 4 : condAvg >= 3 ? 3 : condAvg >= 2 ? 2 : 1;
+    gradeScore = Math.round((profitScore + condScore) / 2 * 2.5);
+    gradeScore = Math.min(10, Math.max(1, gradeScore));
+
+    if (gradeScore >= 7) {
+      verdict = 'GRADE IT'; verdictColor = '#a78bfa'; verdictIcon = '💎'; verdictLabel = 'GRADE IT';
+      verdictSummary = `Strong grading candidate. The condition assessment suggests good grade potential and the numbers work in your favor. Submit to ${service} ${tier <= 25 ? 'Economy' : tier <= 50 ? 'Regular' : 'Express'}.`;
+    } else if (gradeScore >= 5) {
+      verdict = 'BORDERLINE'; verdictColor = '#f5c842'; verdictIcon = '↔'; verdictLabel = 'BORDERLINE';
+      verdictSummary = `The math is marginal. Grading makes sense only if the card grades ${service} 9 or better. Inspect centering carefully before submitting — that's the make-or-break factor here.`;
+    } else {
+      verdict = 'SKIP IT'; verdictColor = '#ff6b6b'; verdictIcon = '✕'; verdictLabel = 'SKIP IT';
+      verdictSummary = `The grading economics don't pencil out. Even at a ${service} 9 you'd barely break even after fees. Sell raw or wait for the market to move.`;
+    }
+
+    const waitTime = tier <= 25 ? '3–6 months' : tier <= 50 ? '6–10 weeks' : '2–4 weeks';
+
+    document.getElementById('gradeLoader').className = 'hidden loader';
+    document.getElementById('gradeResult').className = '';
+    document.getElementById('gradeResult').innerHTML = `
+      <div class="grade-result-hero">
+        <div style="font-size:12px;color:#444;margin-bottom:12px;">${year} ${set} ${player} · ${parallel} · Raw</div>
+        <div class="predicted-grade">Predicted: ${predictedGrade}</div>
+        <div class="grade-verdict-badge" style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);">
+          <span style="font-size:18px;">${verdictIcon}</span>
+          <span class="verdict-text" style="color:${verdictColor};">${verdictLabel}</span>
+        </div>
+        <div class="grade-score-box">
+          <div class="price-label">Grade Score</div>
+          <div class="grade-score-num" style="color:${verdictColor};">${gradeScore}<span style="font-size:18px;color:#333;">/10</span></div>
+        </div>
+        <div class="verdict-summary">${verdictSummary}</div>
+        <div style="margin-top:14px;font-size:12px;color:#444;">Estimated wait: <strong style="color:#a78bfa;">${waitTime}</strong> (${service} ${tier <= 25 ? 'Economy' : tier <= 50 ? 'Regular' : 'Express'} — $${tier})</div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-label-purple">Condition Assessment</div>
+        ${signalBarHTML('Centering', conditions.centering * 2.5, '#a78bfa')}
+        ${signalBarHTML('Corners', conditions.corners * 2.5, '#a78bfa')}
+        ${signalBarHTML('Edges', conditions.edges * 2.5, '#a78bfa')}
+        ${signalBarHTML('Surface', conditions.surface * 2.5, '#a78bfa')}
+      </div>
+
+      <div class="result-box">
+        <div class="result-label-purple">Profit Scenarios</div>
+        <div class="profit-scenario" style="border-color:rgba(167,139,250,0.3);">
+          <div class="scenario-title" style="color:#a78bfa;">${service} 9 Outcome</div>
+          <div class="profit-row"><span class="profit-label">Estimated ${service} 9 value</span><span class="profit-val" style="color:#e0e0ee;">$${psa9Value.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">Raw card cost</span><span class="profit-val" style="color:#ff6b6b;">-$${rawPrice.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">Grading fee</span><span class="profit-val" style="color:#ff6b6b;">-$${tier.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">eBay fees + shipping</span><span class="profit-val" style="color:#ff6b6b;">-$${(ebayFees9 + shipping).toFixed(2)}</span></div>
+          <div class="profit-row" style="border-bottom:none;padding-top:8px;"><span style="font-weight:700;color:#e0e0ee;">Net profit</span><span style="font-size:15px;font-weight:700;color:${net9 >= 0 ? '#00e5a0' : '#ff6b6b'};">${net9 >= 0 ? '+' : ''}$${net9.toFixed(2)} (${roi9}% ROI)</span></div>
+        </div>
+        <div class="profit-scenario" style="border-color:rgba(245,200,66,0.3);">
+          <div class="scenario-title" style="color:#f5c842;">${service} 10 Outcome (if you get lucky)</div>
+          <div class="profit-row"><span class="profit-label">Estimated ${service} 10 value</span><span class="profit-val" style="color:#e0e0ee;">$${psa10Value.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">Raw card cost</span><span class="profit-val" style="color:#ff6b6b;">-$${rawPrice.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">Grading fee</span><span class="profit-val" style="color:#ff6b6b;">-$${tier.toFixed(2)}</span></div>
+          <div class="profit-row"><span class="profit-label">eBay fees + shipping</span><span class="profit-val" style="color:#ff6b6b;">-$${(ebayFees10 + shipping).toFixed(2)}</span></div>
+          <div class="profit-row" style="border-bottom:none;padding-top:8px;"><span style="font-weight:700;color:#e0e0ee;">Net profit</span><span style="font-size:15px;font-weight:700;color:${net10 >= 0 ? '#00e5a0' : '#ff6b6b'};">${net10 >= 0 ? '+' : ''}$${net10.toFixed(2)} (${roi10}% ROI)</span></div>
+        </div>
+      </div>
+      <button class="reset-btn" onclick="resetGrade()">← Analyze Another Card</button>`;
+  }, 2200);
+}
+
+function resetGrade() {
+  document.getElementById('gradeResult').className = 'hidden';
+  document.getElementById('gradeForm').className = '';
+  document.getElementById('gradeSubmit').disabled = true;
+  ['g-player','g-year','g-set','g-parallel','g-raw-price'].forEach(id => document.getElementById(id).value = '');
+  conditions = { centering: 3, corners: 3, edges: 3, surface: 3 };
+  ['cen','cor','edg','sur'].forEach(pre => {
+    [1,2,3,4].forEach(i => document.getElementById(pre+'-'+i).className = 'scale-btn' + (i === 3 ? ' active-grade' : ''));
+  });
+}
+</script>
+</body>
+</html>
